@@ -20,5 +20,8 @@ Netbeans 8.0.2 is recommended to run the program.
 5. After the program finish loading the menu, press ENTER to start the game.  
 
 ## Screenshots
+![First Scene](https://github.com/taylorty/Battle-City/blob/master/screenshots/main.png)
+![Main game](https://github.com/taylorty/Battle-City/blob/master/screenshots/game.png)
+![Scoreboard](https://github.com/taylorty/Battle-City/blob/master/screenshots/scoreboard.png)
 
 Enjoy!
