@@ -1,0 +1,45 @@
+
+# Editor backup files
+*~
+*.bak
+
+# Class Files #
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# NetBeans specific #
+nbproject/*
+!nbproject/project.properties
+!nbproject/project.xml
+!nbproject/licenseheader.txt
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Eclipse configuration files
+# NOTE: If you want to use the Git plugin for Eclipse, then 
+# do NOT exclude .classpath and .project!
+.settings/
+.metadata/
+.classpath
+.project
+
+# Default Eclipse output directory
+bin/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+.Icon?
+ehthumbs.db
+Thumbs.db
+/src/MyWork/

@@ -1,0 +1,15 @@
+/* *****************************************
+* CSCI205 - Software Engineering and Design
+* Spring 2016
+*
+* Name: Tongyu Yang, Peter Unrein, Hung Giang, Adrian Berg
+* Date: ${date}
+* Time: ${time}
+*
+* Project: ${project.name}
+* Package: ${package}
+* File: ${name}
+* Description:
+*
+* ****************************************
+*/
