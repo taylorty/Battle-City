@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * Explosion extends Animation. This is the explosion used for bullets and
  * various types of blocks.
@@ -25,21 +27,23 @@ package SpriteClasses;
  */
 public class Explosion extends Animation {
 
-    public Explosion(int x, int y) {
-        super(x - 8, y - 8);
-        loadImage("image/bullet_explosion_1.png");
-        getImageDimensions();
+    public Explosion(int x, int y, Images imgateType) {
+        super(x - 8, y - 8, imgateType == null ? Images.explosion : imgateType);
+//        loadImage("./Battle-City/image/bullet_explosion_1.png");
+//        getImageDimensions();
     }
 
     @Override
     public void updateAnimation() {
         if ((System.currentTimeMillis() - initialTime) > 125) {
-            loadImage("image/bullet_explosion_2.png");
-            getImageDimensions();
+        	updateImage(Images.explosion2);
+//            loadImage("./Battle-City/image/bullet_explosion_2.png");
+//            getImageDimensions();
         }
         if ((System.currentTimeMillis() - initialTime > 250)) {
-            loadImage("image/bullet_explosion_3.png");
-            getImageDimensions();
+        	updateImage(Images.explosion3);
+//            loadImage("./Battle-City/image/bullet_explosion_3.png");
+//            getImageDimensions();
         }
         if ((System.currentTimeMillis() - initialTime > 300)) {
             super.vis = false;

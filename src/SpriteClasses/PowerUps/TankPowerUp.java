@@ -15,6 +15,8 @@
  */
 package SpriteClasses.PowerUps;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * TankPowerUp extends the PowerUp and sets the type as 7
  *
@@ -24,11 +26,11 @@ package SpriteClasses.PowerUps;
  */
 public class TankPowerUp extends PowerUp {
     public TankPowerUp(int x, int y) {
-        super(x, y);
-        loadImage("image/powerup_tank.png");
-        getImageDimensions();
+        super(x, y, Images.powerup_tank);
+//        loadImage("./Battle-City/image/powerup_tank.png");
+//        getImageDimensions();
         setType(7);
-        s = "image/powerup_tank.png";
+//        s = "./Battle-City/image/powerup_tank.png";
     }
 
 }

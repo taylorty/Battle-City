@@ -16,9 +16,14 @@
 package GameMain;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+
+import SpriteClasses.ImageUtils;
 
 /**
  * A class for map in the game
@@ -30,8 +35,8 @@ public class Map {
     /**
      * Hard coded the size of the board
      */
-    public static final int BOARD_WIDTH = 16 * 33;
-    public static final int BOARD_HEIGHT = 16 * 28;
+//    public static final int BOARD_WIDTH = 16 * 33;
+//    public static final int BOARD_HEIGHT = 16 * 28;
     private static final int ROW_SHIFT = 1;
     private static final int COL_SHIFT = 2;
     private static final int BASE_POS = 14;
@@ -41,8 +46,9 @@ public class Map {
      *
      * @param stage
      * @return 2D array that represents the map
+     * @throws URISyntaxException 
      */
-    public static int[][] getMap(int stage) {
+    public static int[][] getMap(int stage) throws URISyntaxException {
         return createNewStageMap(stage);
     }
 
@@ -86,9 +92,9 @@ public class Map {
      * @return an array list that represents a map
      */
     public static ArrayList<ArrayList<Integer>>
-            readFromFile(String fileName) {
+            readFromFile(URI fileName) {
         ArrayList<ArrayList<Integer>> tempMap = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(fileName)))) {
             String currentLine;
             while ((currentLine = br.readLine()) != null) {
                 if (currentLine.isEmpty()) {
@@ -147,11 +153,12 @@ public class Map {
      *
      * @param stage current stage number
      * @return a 2D array that represents the map of the given stage
+     * @throws URISyntaxException 
      */
-    public static int[][] createNewStageMap(int stage) {
+    public static int[][] createNewStageMap(int stage) throws URISyntaxException {
         int[][] newLevel = level0;
         ArrayList<ArrayList<Integer>> levelReadFromFile = readFromFile(
-                "stages/" + String.valueOf(stage));
+        		ImageUtils.class.getClassLoader().getResource("stages/" + String.valueOf(stage)).toURI());
         int[][] array = arrayListToArray(levelReadFromFile);
         for (int i = ROW_SHIFT; i < array.length + ROW_SHIFT; i++) {
             for (int j = COL_SHIFT; j < array[0].length + COL_SHIFT; j++) {

@@ -24,37 +24,39 @@ package SpriteClasses;
  */
 import java.awt.Image;
 import java.awt.Rectangle;
-import javax.swing.ImageIcon;
 
 public class Sprite {
     public int x;
     public int y;
-    public int width;
-    public int height;
+    public int width = 16;
+    public int height = 16;
     public boolean vis;
-    public Image image;
-
-    public Sprite(int x, int y) {
-
+//    private Image image;
+    protected ImageUtils.Images imageType;
+    
+    public Sprite(int x, int y, ImageUtils.Images imageType) {
         this.x = x;
         this.y = y;
         vis = true;
+        this.imageType = imageType;
     }
 
-    protected void getImageDimensions() {
-        width = image.getWidth(null);
-        height = image.getHeight(null);
-    }
+//    protected void getImageDimensions() {
+//    	if (getImage() == null) return;
+//        width = getImage().getWidth(null);
+//        height = getImage().getHeight(null);
+//    }
 
-    protected void loadImage(String imageName) {
-        ImageIcon i = new ImageIcon(imageName);
-        image = i.getImage();
-    }
+//    protected void loadImage(String imageName) {
+//        ImageIcon i = new ImageIcon(imageName);
+//        image = i.getImage();
+//    }
 
     public Image getImage() {
-        return image;
+//        return image;
+    	return ImageUtils.getImage(this.imageType);
     }
-
+    
     public int getX() {
         return x;
     }
@@ -73,5 +75,9 @@ public class Sprite {
 
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
+    }
+    
+    public void updateImage(ImageUtils.Images imageType) {
+    	this.imageType = imageType;
     }
 }

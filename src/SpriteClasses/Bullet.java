@@ -15,7 +15,7 @@
  */
 package SpriteClasses;
 
-import GameMain.Map;
+import SpriteClasses.ImageUtils.Images;
 
 /**
  * Bullet is a Sprite. Direction refers to which way the bullet is facing North
@@ -36,29 +36,37 @@ import GameMain.Map;
  */
 public class Bullet extends Sprite {
     private final int BULLET_SPEED = 3;
-    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
-    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
+//    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
+//    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
     private int direction;
     private boolean upgrade = false;
     public boolean isEnemy;
+    public boolean isFirst = true;
 
-    public Bullet(int x, int y, int direction, boolean Enemy) {
-        super(x, y);
+    public Bullet(int x, int y, int direction, boolean Enemy, boolean isFirst) {
+        super(x, y, null);
+        this.width = 8;
+        this.height = 8;
         this.direction = direction;
         if (direction == 0) {
-            loadImage("image/bullet_up.png");
+//            loadImage("./Battle-City/image/bullet_up.png");
+        	updateImage(Images.bullet_up);
         }
         if (direction == 1) {
-            loadImage("image/bullet_right.png");
+//            loadImage("./Battle-City/image/bullet_right.png");
+        	updateImage(Images.bullet_right);
         }
         if (direction == 2) {
-            loadImage("image/bullet_down.png");
+//            loadImage("./Battle-City/image/bullet_down.png");
+        	updateImage(Images.bullet_down);
         }
         if (direction == 3) {
-            loadImage("image/bullet_left.png");
+//            loadImage("./Battle-City/image/bullet_left.png");
+        	updateImage(Images.bullet_left);
         }
-        isEnemy = Enemy;
-        getImageDimensions();
+        this.isEnemy = Enemy;
+        this.isFirst = isFirst;
+//        getImageDimensions();
     }
 
     public void move() {
@@ -71,13 +79,13 @@ public class Bullet extends Sprite {
         } else if (direction == 3) {
             x -= BULLET_SPEED;
         }
-        if (x > BOARD_WIDTH + 100 + width) {
+        if (x > ImageUtils.getDefaultBlockSize() * 33 + 100 + width) {
             vis = false;
         }
         if (x < -width - 100) {
             vis = false;
         }
-        if (y > BOARD_HEIGHT + height + 100) {
+        if (y > ImageUtils.getDefaultBlockSize() * 28 + height + 100) {
             vis = false;
         }
         if (y < -height - 100) {
@@ -92,5 +100,10 @@ public class Bullet extends Sprite {
     public boolean getUpgrade() {
         return this.upgrade;
     }
+
+	public boolean isFirst() {
+		return isFirst;
+	}
+    
 
 }

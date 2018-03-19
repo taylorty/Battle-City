@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * Brick is a block with type 1 and health 1.
  *
@@ -25,9 +27,9 @@ package SpriteClasses;
  */
 public class Brick extends Block {
     public Brick(int x, int y) {
-        super(x, y);
-        loadImage("image/wall_brick.png");
-        getImageDimensions();
+        super(x, y, Images.brick);
+//        loadImage("./Battle-City/image/wall_brick.png");
+//        getImageDimensions();
         setType(1);
         setHealth(1);
     }

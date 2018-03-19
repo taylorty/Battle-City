@@ -17,11 +17,14 @@ package GameMain;
 
 import static GameMain.Menu.loadFont;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -29,24 +32,32 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import GameMain.Options.OptionsEnum;
+import SpriteClasses.ImageUtils;
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * A class for showing the totalScore
  *
  * @author Tongyu
  */
+@SuppressWarnings("serial")
 public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
 
     /**
      * Initialize instance variables for the ScoreBoard
      */
     private GameView theView;
-    private int stage, totalTankNum;
+    private int stage, totalTankNum, totalTankNum2;
     private int totalScore = 0;
-    private final int SHIFT = 80;
+    private int totalScore2 = 0;
+//    private final int SHIFT = 80;
     private JButton restartButton;
-    private final ImageUtility imageInstance = ImageUtility.getInstance();
+//    private final ImageUtility imageInstance = ImageUtility.getInstance();
     private int[] tankScoreList = {0, 0, 0, 0};
     private int[] tankNumList = {0, 0, 0, 0};
+    private int[] tankScoreList2 = {0, 0, 0, 0};
+    private int[] tankNumList2 = {0, 0, 0, 0};
 
     /**
      * Constructor for the ScoreBoard. A restart button is added for the player
@@ -63,9 +74,28 @@ public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
         restartButton = new JButton();
         restartButton.setText("Restart");
         this.add(restartButton);
-        restartButton.setBounds(400, 400,
-                                100, 30);
+        restartButton.setBounds(400, getYScaled(400), 100, 30);
         restartButton.addActionListener(this);
+
+        loadScore();
+        
+        this.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent evt) {
+                Component c = (Component)evt.getSource();
+                ImageUtils.setNewFormSize(c.getSize().width, c.getSize().height);
+                restartButton.setBounds(ImageUtils.getCurrent_form_width() - 128, getYScaled(400), 100, 30);
+            }
+		}); 
+        
+    }
+    
+    private int getXScaled(int x) {
+    	return (int)(ImageUtils.getCurrent_scale_factor() * x) + ImageUtils.getDraw_from_x();
+    }
+
+    private int getYScaled(int y) {
+    	return y;
+//    	return (int)(ImageUtils.getCurrent_scale_factor() * y) + ImageUtils.getDraw_from_y();
     }
 
     /**
@@ -75,52 +105,86 @@ public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
      */
     @Override
     public void paintComponent(Graphics g) {
-        loadScore();
         stage = Board.getStage();
         super.paintComponent(g);
         Font font = loadFont();
         ArrayList<Image> tankList = new ArrayList<>(
-                Arrays.asList(imageInstance.getTankBasic(),
-                              imageInstance.getTankFast(),
-                              imageInstance.getTankPower(),
-                              imageInstance.getTankArmor()));
+                Arrays.asList(ImageUtils.getOriginImage(Images.aiTank_basic_up),
+                		ImageUtils.getOriginImage(Images.aiTank_fast_up),
+                		ImageUtils.getOriginImage(Images.aiTank_power_up),
+                		ImageUtils.getOriginImage(Images.aiTank_armor_up)));
 
         // Display High totalScore
         g.setFont(font);
         g.setColor(Color.WHITE);
-        g.drawString("STAGE   " + String.valueOf(stage), 97 + SHIFT, 60);
+        g.drawString("STAGE   " + String.valueOf(stage), ImageUtils.getCurrent_form_width() / 2 - 57, getYScaled(60));
 
         g.setColor(Color.RED);
-        g.drawString("1-PLAYER", 37 + SHIFT, 95);
+        g.drawString("1-PLAYER", getXScaled(50), getYScaled(95));
 
         g.setColor(Color.orange);
-        g.drawString(String.valueOf(totalScore), 121 + SHIFT, 130);
+        g.drawString(String.valueOf(totalScore), getXScaled(50), getYScaled(130));
 
         for (int i = 0; i < 4; i++) {
-            g.drawImage(tankList.get(i), 226 + SHIFT, 160 + (i * 45), this);
-            g.drawImage(imageInstance.getArrow(), 206 + SHIFT, 168 + (i * 45),
+            g.drawImage(tankList.get(i), getXScaled(216), getYScaled(160 + (i * 45)), this);
+            g.drawImage(ImageUtils.getOriginImage(Images.arrow), getXScaled(186), getYScaled(168 + (i * 45)),
                         this);
         }
         for (int i = 0; i < 4; i++) {
             g.setColor(Color.WHITE);
-            g.drawString(String.valueOf(tankScoreList[i]), 55 + SHIFT,
-                         180 + (i * 45));
-            g.drawString("PTS", 115 + SHIFT, 180 + (i * 45));
+            g.drawString(String.valueOf(tankScoreList[i]), getXScaled(45),
+            		getYScaled(180 + (i * 45)));
+            g.drawString("PTS", getXScaled(95), getYScaled(180 + (i * 45)));
         }
 
         for (int i = 0; i < 4; i++) {
             g.setColor(Color.WHITE);
-            g.drawString(String.valueOf(tankNumList[i]), 180 + SHIFT,
-                         180 + (i * 45));
+            g.drawString(String.valueOf(tankNumList[i]), getXScaled(170),
+            		getYScaled(180 + (i * 45)));
         }
 
         // total underline
-        g.drawLine(170, 330, 307, 330);
+        g.drawLine(getXScaled(40), getYScaled(330), getXScaled(227), getYScaled(330));
 
-        g.drawString("TOTAL", 85 + SHIFT, 355);
-        g.drawString(String.valueOf(totalTankNum), 180 + SHIFT, 355);
+        g.drawString("TOTAL", getXScaled(75), 355);
+        g.drawString(String.valueOf(totalTankNum), getXScaled(170), getYScaled(355));
         g.setFont(font);
         g.setColor(Color.WHITE);
+        
+        if (Options.getInstance().getOption(OptionsEnum.mode) == 2) {
+            g.setColor(Color.RED);
+            g.drawString("2-PLAYER", ImageUtils.getCurrent_form_width() / 2 + getXScaled(50), getYScaled(95));
+
+            g.setColor(Color.orange);
+            g.drawString(String.valueOf(totalScore2), ImageUtils.getCurrent_form_width() / 2 + getXScaled(50), getYScaled(130));
+
+            for (int i = 0; i < 4; i++) {
+                g.drawImage(tankList.get(i), ImageUtils.getCurrent_form_width() / 2 + getXScaled(216), getYScaled(160 + (i * 45)), this);
+                g.drawImage(ImageUtils.getOriginImage(Images.arrow), ImageUtils.getCurrent_form_width() / 2 + getXScaled(186), getYScaled(168 + (i * 45)),
+                            this);
+            }
+            for (int i = 0; i < 4; i++) {
+                g.setColor(Color.WHITE);
+                g.drawString(String.valueOf(tankScoreList2[i]), ImageUtils.getCurrent_form_width() / 2 + getXScaled(45),
+                		getYScaled(180 + (i * 45)));
+                g.drawString("PTS", ImageUtils.getCurrent_form_width() / 2 + getXScaled(95), getYScaled(180 + (i * 45)));
+            }
+
+            for (int i = 0; i < 4; i++) {
+                g.setColor(Color.WHITE);
+                g.drawString(String.valueOf(tankNumList2[i]), ImageUtils.getCurrent_form_width() / 2 + getXScaled(170),
+                		getYScaled(180 + (i * 45)));
+            }
+
+            // total underline
+            g.drawLine(ImageUtils.getCurrent_form_width() / 2 + getXScaled(40), getYScaled(330), ImageUtils.getCurrent_form_width() / 2 + getXScaled(227), getYScaled(330));
+
+            g.drawString("TOTAL", ImageUtils.getCurrent_form_width() / 2 + getXScaled(75), 355);
+            g.drawString(String.valueOf(totalTankNum2), ImageUtils.getCurrent_form_width() / 2 + getXScaled(170), getYScaled(355));
+            g.setFont(font);
+            g.setColor(Color.WHITE);
+        }
+        
     }
 
     /**
@@ -140,6 +204,21 @@ public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
         for (Integer num : tankNumList) {
             totalTankNum += num;
         }
+        if (Options.getInstance().getOption(OptionsEnum.mode) == 2) {
+            for (int i = 0; i < 4; i++) {
+                int[] enemyTankNum2 = CollisionUtility.getEnemyTankNum2();
+                tankNumList2[i] = enemyTankNum2[i];
+            }
+            for (int i = 0; i < 4; i++) {
+                tankScoreList2[i] = tankNumList2[i] * 100 * (i + 1);
+            }
+            for (Integer score : tankScoreList2) {
+                totalScore2 += score;
+            }
+            for (Integer num : tankNumList2) {
+                totalTankNum2 += num;
+            }
+        }
     }
 
     /**
@@ -148,7 +227,7 @@ public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
     public void restart() {
         Board.gameOver = false;
         CollisionUtility.resetScore();
-        loadMenu();
+        Menu.loadMenu(theView);
     }
 
     @Override
@@ -158,38 +237,24 @@ public class ScoreBoard extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    /**
-     * Load the menu to the game panel if the player chooses to restart the
-     * game.
-     */
-    private void loadMenu() {
-        theView.getGamePanel().removeAll();
-        Menu menu = new Menu(theView);
-        menu.revalidate();
-        menu.repaint();
-        theView.getGamePanel().add(menu);
-        menu.requestFocusInWindow();
-        theView.setVisible(true);
-    }
-
     @Override
     public void keyTyped(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            loadMenu();
+        	Menu.loadMenu(theView);
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            loadMenu();
+        	Menu.loadMenu(theView);
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            loadMenu();
+        	Menu.loadMenu(theView);
         }
     }
 }

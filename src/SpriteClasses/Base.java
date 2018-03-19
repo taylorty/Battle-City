@@ -21,13 +21,15 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 public class Base extends Block {
     public boolean gameOver = false;
 
     public Base(int x, int y) {
-        super(x, y);
-        loadImage("image/base.png");
-        getImageDimensions();
+        super(x, y, Images.base);
+//        loadImage("./Battle-City/image/base.png");
+//        getImageDimensions();
         setHealth(1);
         setType(3);
 
@@ -35,8 +37,9 @@ public class Base extends Block {
 
     public void updateAnimation() {
         if (gameOver == true) {
-            loadImage("image/base_destroyed.png");
-            getImageDimensions();
+//            loadImage("./Battle-City/image/base_destroyed.png");
+        	updateImage(Images.base2);
+//            getImageDimensions();
 
         }
     }

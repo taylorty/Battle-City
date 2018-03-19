@@ -15,6 +15,8 @@
  */
 package SpriteClasses.PowerUps;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * ShovelPowerUp extends PowerUp and sets the type at 11
  *
@@ -24,11 +26,11 @@ package SpriteClasses.PowerUps;
  */
 public class ShovelPowerUp extends PowerUp {
     public ShovelPowerUp(int x, int y) {
-        super(x, y);
-        loadImage("image/powerup_shovel.png");
-        getImageDimensions();
+        super(x, y, Images.powerup_shovel);
+  //      loadImage("./Battle-City/image/powerup_shovel.png");
+//        getImageDimensions();
         setType(11);
-        s = "image/powerup_shovel.png";
+//        s = "./Battle-City/image/powerup_shovel.png";
     }
 
 }

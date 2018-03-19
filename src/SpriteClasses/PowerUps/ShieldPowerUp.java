@@ -15,6 +15,8 @@
  */
 package SpriteClasses.PowerUps;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * ShieldPowerUp extends PowerUp and sets the type at 12
  *
@@ -24,11 +26,11 @@ package SpriteClasses.PowerUps;
  */
 public class ShieldPowerUp extends PowerUp {
     public ShieldPowerUp(int x, int y) {
-        super(x, y);
-        loadImage("image/powerup_helmet.png");
-        getImageDimensions();
+        super(x, y, Images.powerup_helmet);
+//        loadImage("./Battle-City/image/powerup_helmet.png");
+//        getImageDimensions();
         setType(12);
-        s = "image/powerup_helmet.png";
+//        s = "./Battle-City/image/powerup_helmet.png";
     }
 
 }

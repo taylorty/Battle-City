@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * Edge class
  *
@@ -24,9 +26,9 @@ package SpriteClasses;
  */
 public class Edge extends Block {
     public Edge(int x, int y) {
-        super(x, y);
-        loadImage("image/edge.png");
-        getImageDimensions();
+        super(x, y, Images.edge);
+//        loadImage("./Battle-City/image/edge.png");
+//        getImageDimensions();
         setType(6);
         setHealth(1);
     }

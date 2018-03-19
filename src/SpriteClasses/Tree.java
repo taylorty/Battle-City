@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * Tree is a block with type 5 and health 1
  *
@@ -24,9 +26,9 @@ package SpriteClasses;
  */
 public class Tree extends Block {
     public Tree(int x, int y) {
-        super(x, y);
-        loadImage("image/trees.png");
-        getImageDimensions();
+        super(x, y, Images.tree);
+//        loadImage("./Battle-City/image/trees.png");
+//        getImageDimensions();
         setType(5);
         setHealth(1);
     }

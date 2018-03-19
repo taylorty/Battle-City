@@ -19,6 +19,7 @@ import SpriteClasses.Animation;
 import SpriteClasses.Block;
 import SpriteClasses.Bullet;
 import SpriteClasses.ExplodingTank;
+import SpriteClasses.ImageUtils;
 import SpriteClasses.PowerUps.BombPowerUp;
 import SpriteClasses.PowerUps.ClockPowerUp;
 import SpriteClasses.PowerUps.PowerUp;
@@ -26,12 +27,15 @@ import SpriteClasses.PowerUps.ShieldPowerUp;
 import SpriteClasses.PowerUps.StarPowerUp;
 import SpriteClasses.PowerUps.TankPowerUp;
 import SpriteClasses.Tank;
+import SpriteClasses.Tank2;
 import SpriteClasses.TankAI;
 import SpriteClasses.TankShield;
 import SpriteClasses.TankSpawn;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Random;
+
+import GameMain.Options.OptionsEnum;
 
 /**
  * A utility class for the board
@@ -45,6 +49,7 @@ public class BoardUtility {
     private static ArrayList<Animation> animations = new ArrayList<>();
     private static ArrayList<PowerUp> powerUps = new ArrayList<>();
     private static Tank tank;
+    private static Tank2 tank2;
 
     /**
      * Constructor for the BoardUtility class
@@ -58,57 +63,73 @@ public class BoardUtility {
     public static void loadBoardUtility(ArrayList<TankAI> enemy1,
                                         ArrayList<Block> blocks1,
                                         ArrayList<Animation> animations1,
-                                        ArrayList<PowerUp> powerUps1, Tank tank1) {
+                                        ArrayList<PowerUp> powerUps1, Tank tank1,
+                                        Tank2 tank_) {
         enemy = enemy1;
         blocks = blocks1;
         animations = animations1;
         powerUps = powerUps1;
         tank = tank1;
+        tank2 = tank_;
     }
 
     /**
      * Update power ups on the board.
      */
     public static void updatePowerUps() {
-        for (int i = 0; i < powerUps.size(); i++) {
+    	int i = 0;
+    	while (i < powerUps.size()) {
             PowerUp p = powerUps.get(i);
+            
             p.updateAnimation();
             BlockType type = BlockType.getTypeFromInt(p.getType());
-            Rectangle r1 = tank.getBounds();
-            Rectangle r2 = p.getBounds();
-
             if (System.currentTimeMillis() - p.getLoadTime() > 10000) {
                 powerUps.remove(i);
-            }
+            } else {
+                for (int k = 0; k < 2; k++) {
+                	if (Options.getInstance().getOption(OptionsEnum.mode) != 2 && k == 1) continue; 
+                    Rectangle r1 = tank.getBounds();
+                    if (k == 1) r1 = tank2.getBounds();
+                    Rectangle r2 = p.getBounds();
 
-            if (r1.intersects(r2)) {
-                powerUps.remove(i);
-                SoundUtility.powerupPick();
-                if (type.equals(BlockType.TANK)) {
-                    tank.upHealth();
-                } else if (type.equals(BlockType.SHIELD)) {
-                    tank.shield = true;
-                    animations.add(new TankShield(tank, 1));
-                } else if (type.equals(BlockType.SHOVEL)) {
+                    if (r1.intersects(r2)) {
+                        powerUps.remove(i);
+                        SoundUtility.powerupPick();
+                        if (type.equals(BlockType.TANK)) {
+                        	if (k == 0) tank.upHealth();
+                        	else tank2.upHealth();
+                        } else if (type.equals(BlockType.SHIELD)) {
+                        	if (k == 0) {
+                        		tank.shield = true;
+                        		animations.add(new TankShield(tank, 1));
+                        	} else {
+                        		tank2.shield = true;
+                        		animations.add(new TankShield(tank2, 1));
+                        	}
+                        } else if (type.equals(BlockType.SHOVEL)) {
 
-                } else if (type.equals(BlockType.STAR)) {
-                    tank.upStarLevel();
-                } else if (type.equals(BlockType.CLOCK)) {
-                    for (int x = 0; x < enemy.size(); x++) {
-                        enemy.get(x).frozen = true;
-                        enemy.get(x).frozenStartTime = System.currentTimeMillis();
-                    }
-                } else if (type.equals(BlockType.BOMB)) {
-                    for (int x = 0; x < enemy.size(); x++) {
-                        enemy.get(x).vis = false;
-                        for (TankAI ai : enemy) {
-                            CollisionUtility.incrementNum(ai);
+                        } else if (type.equals(BlockType.STAR)) {
+                        	if (k == 0) tank.upStarLevel();
+                        	else tank2.upStarLevel();
+                        } else if (type.equals(BlockType.CLOCK)) {
+                            for (int x = 0; x < enemy.size(); x++) {
+                                enemy.get(x).frozen = true;
+                                enemy.get(x).frozenStartTime = System.currentTimeMillis();
+                            }
+                        } else if (type.equals(BlockType.BOMB)) {
+                            for (int x = 0; x < enemy.size(); x++) {
+                                enemy.get(x).vis = false;
+                                for (TankAI ai : enemy) {
+                                    CollisionUtility.incrementNum(ai);
+                                }
+                                Board.decrementEnemies(enemy.size());
+                                animations.add(new ExplodingTank(enemy.get(x).x,
+                                                                 enemy.get(x).y));
+                            }
                         }
-                        Board.decrementEnemies(enemy.size());
-                        animations.add(new ExplodingTank(enemy.get(x).x,
-                                                         enemy.get(x).y));
-                    }
+                    }            	
                 }
+                i++;
             }
         }
 
@@ -161,27 +182,27 @@ public class BoardUtility {
         Random random = new Random();
         int randomPos = random.nextInt(3);
         int randomType = random.nextInt(20);
-        String type;
+        AiTankType type;
         if (randomType < 2) {
-            type = "armor";
+            type = AiTankType.armor;
         } else if (randomType >= 2 && randomType < 7) {
-            type = "power";
+            type = AiTankType.power;
         } else if (randomType >= 8 && randomType < 13) {
-            type = "fast";
+            type = AiTankType.fast;
         } else {
-            type = "basic";
+            type = AiTankType.base;
         }
         if (randomPos == 0) {
-            animations.add(new TankSpawn(2 * 16, 1 * 16));
-            TankAI AI = new TankAI(2 * 16, 1 * 16, difficulty, type, powerUp);
+            animations.add(new TankSpawn(2 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize()));
+            TankAI AI = new TankAI(2 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize(), difficulty, type, powerUp);
             enemy.add(AI);
         } else if (randomPos == 1) {
-            animations.add(new TankSpawn(14 * 16, 1 * 16));
-            TankAI AI = new TankAI(14 * 16, 1 * 16, difficulty, type, powerUp);
+            animations.add(new TankSpawn(14 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize()));
+            TankAI AI = new TankAI(14 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize(), difficulty, type, powerUp);
             enemy.add(AI);
         } else {
-            animations.add(new TankSpawn(26 * 16, 1 * 16));
-            TankAI AI = new TankAI(26 * 16, 1 * 16, difficulty, type, powerUp);
+            animations.add(new TankSpawn(26 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize()));
+            TankAI AI = new TankAI(26 * ImageUtils.getDefaultBlockSize(), 1 * ImageUtils.getDefaultBlockSize(), difficulty, type, powerUp);
             enemy.add(AI);
         }
     }
@@ -208,6 +229,19 @@ public class BoardUtility {
      */
     public static void updateBulletsTank() {
         ArrayList<Bullet> bullets = tank.getBullets();
+
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet b = bullets.get(i);
+            if (b.isVisible()) {
+                b.move();
+            } else if (b.isVisible() == false) {
+                bullets.remove(i);
+            }
+        }
+    }
+    
+    public static void updateBulletsTank2() {
+        ArrayList<Bullet> bullets = tank2.getBullets();
 
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
@@ -258,6 +292,12 @@ public class BoardUtility {
             tank.move();
         }
     }
+    
+    public static void updateTank2() {
+        if (tank2.isVisible()) {
+            tank2.move();
+        }
+    }
 
     /**
      * Check for collisions on the board.
@@ -265,14 +305,24 @@ public class BoardUtility {
     public static void checkCollisions() {
         ArrayList<Bullet> bullets = new ArrayList<>();
         bullets.addAll(tank.getBullets());
+        if (Options.getInstance().getOption(OptionsEnum.mode) == 2) bullets.addAll(tank2.getBullets()); 
         for (TankAI tankAI : enemy) {
             bullets.addAll(tankAI.getBullets());
         }
+        CollisionUtility.checkCollisionBulletsBullets(bullets);
         CollisionUtility.checkCollisionBulletsBlocks(bullets, blocks);
         CollisionUtility.checkCollisionBulletsTank(bullets, tank);
+        if (Options.getInstance().getOption(OptionsEnum.mode) == 2) CollisionUtility.checkCollisionBulletsTank2(bullets, tank2);
         CollisionUtility.checkCollisionBulletsTankAI(bullets, enemy);
         CollisionUtility.checkCollisionTankTankAI(enemy, tank);
+        if (Options.getInstance().getOption(OptionsEnum.mode) == 2) CollisionUtility.checkCollisionTankTankAI2(enemy, tank2);
 
     }
+
+	public static void setTank2(Tank2 tank2) {
+		BoardUtility.tank2 = tank2;
+	}
+    
+    
 
 }

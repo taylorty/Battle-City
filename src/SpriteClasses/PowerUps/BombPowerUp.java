@@ -15,6 +15,8 @@
  */
 package SpriteClasses.PowerUps;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * BombPowerUp extends PowerUp
  *
@@ -24,11 +26,11 @@ package SpriteClasses.PowerUps;
  */
 public class BombPowerUp extends PowerUp {
     public BombPowerUp(int x, int y) {
-        super(x, y);
-        loadImage("image/powerup_grenade.png");
-        getImageDimensions();
+        super(x, y, Images.powerup_bomb);
+//        loadImage("./Battle-City/image/powerup_grenade.png");
+//        getImageDimensions();
         setType(9);
-        s = "image/powerup_grenade.png";
+//        s = "./Battle-City/image/powerup_grenade.png";
     }
 
 }

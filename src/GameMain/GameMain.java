@@ -15,7 +15,12 @@
  */
 package GameMain;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import javax.swing.UIManager;
+
+import SpriteClasses.ImageUtils;
 
 /**
  * The main for the entire game
@@ -54,6 +59,11 @@ public class GameMain {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+            	try {
+					ImageUtils.initialize(null);
+				} catch (IOException | URISyntaxException e) {
+					e.printStackTrace();
+				}
                 GameView theView = new GameView();
                 Menu menu = new Menu(theView);
                 theView.getGamePanel().add(menu);

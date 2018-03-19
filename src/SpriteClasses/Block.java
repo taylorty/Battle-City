@@ -29,8 +29,8 @@ public class Block extends Sprite {
     public int health = 1;
     private int type;
 
-    public Block(int x, int y) {
-        super(x, y);
+    public Block(int x, int y, ImageUtils.Images imageType) {
+        super(x, y, imageType);
     }
 
     public void lowerHealth() {

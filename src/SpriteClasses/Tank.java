@@ -16,13 +16,14 @@
 package SpriteClasses;
 
 import GameMain.CollisionUtility;
-import GameMain.Map;
+import GameMain.Options;
 import GameMain.SoundUtility;
-import java.awt.Image;
+import GameMain.Options.OptionsEnum;
+import SpriteClasses.ImageUtils.Images;
+
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import javax.swing.ImageIcon;
 
 /**
  * Tank extends Sprite The Tank represents the player in the game. The tank has
@@ -40,14 +41,14 @@ import javax.swing.ImageIcon;
  */
 public class Tank extends Sprite {
 
-    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
-    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
-    private int dx;
-    private int dy;
-    private ArrayList<Bullet> bullets;
+//    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
+//    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
+    protected int dx;
+    protected int dy;
+    protected ArrayList<Bullet> bullets;
     public int direction;
-    private long lastFired = 0;
-    private int health = 2;
+    protected long lastFired = 0;
+    protected int health = 2;
     public int starLevel = 0;
     public int lives;
     public boolean shield = false;
@@ -74,10 +75,16 @@ public class Tank extends Sprite {
         }
     }
 
+    public Tank(int x, int y, Images imageType) {
+    	super(x, y, imageType);
+    }
+    
     public Tank(int x, int y, int lives) {
-        super(x, y);
-        loadImage("image/playerTank_up.png");
-        getImageDimensions();
+        super(x, y, Images.playerTank_up);
+//        loadImage("./Battle-City/image/playerTank_up.png");
+//        getImageDimensions();
+        this.width = 32;
+        this.height = 32;
         bullets = new ArrayList<>();
         direction = 0;
         this.lives = lives;
@@ -92,13 +99,20 @@ public class Tank extends Sprite {
             y += dy;
         }
 
-        if (x > BOARD_WIDTH - width) {
-            x = BOARD_WIDTH - width;
+//        if (x > BOARD_WIDTH - width) {
+//            x = BOARD_WIDTH - width;
+//        }
+        if (x > ImageUtils.getDefaultBlockSize() * 33 - width) {
+            x = ImageUtils.getDefaultBlockSize() * 33 - width;
         }
 
-        if (y > BOARD_HEIGHT - height) {
-            y = BOARD_HEIGHT - height;
+//        if (y > BOARD_HEIGHT - height) {
+//            y = BOARD_HEIGHT - height;
+//        }
+        if (y > ImageUtils.getDefaultBlockSize() * 28 - height) {
+            y = ImageUtils.getDefaultBlockSize() * 28 - height;
         }
+        
         if (x < 1) {
             x = 1;
         }
@@ -116,13 +130,13 @@ public class Tank extends Sprite {
     public void fire() {
         Bullet aBullet;
         if (direction == 0) {
-            aBullet = new Bullet(x + width / 3, y, 0, false);
+            aBullet = new Bullet(x + width / 3, y, 0, false, true);
         } else if (direction == 1) {
-            aBullet = new Bullet(x + width - 3, y + height / 3, 1, false);
+            aBullet = new Bullet(x + width - 3, y + height / 3, 1, false, true);
         } else if (direction == 2) {
-            aBullet = new Bullet(x + width / 3, (y + height) - 3, 2, false);
+            aBullet = new Bullet(x + width / 3, (y + height) - 3, 2, false, true);
         } else {
-            aBullet = new Bullet(x, y + height / 3, 3, false);
+            aBullet = new Bullet(x, y + height / 3, 3, false, true);
         }
         if (starLevel == 3) {
             aBullet.upgrade();
@@ -139,11 +153,12 @@ public class Tank extends Sprite {
         return y;
     }
 
-    public Image getImage() {
-        return image;
-    }
+//    public Image getImage() {
+//        return image;
+//    }
 
     public void keyPressed(KeyEvent e) {
+    	if (!this.vis || !(this.health >= 0)) return;
         int time;
         int key = e.getKeyCode();
         if (starLevel == 0) {
@@ -151,44 +166,53 @@ public class Tank extends Sprite {
         } else {
             time = 250;
         }
-        if (key == KeyEvent.VK_SPACE && (System.currentTimeMillis() - lastFired) > time) {
+//        if (key == KeyEvent.VK_SPACE && (System.currentTimeMillis() - lastFired) > time) {
+        if (key == Options.getInstance().getOption(OptionsEnum.key_fire_1) && (System.currentTimeMillis() - lastFired) > time) {
             fire();
             lastFired = System.currentTimeMillis();
-        } else if (key == KeyEvent.VK_LEFT) {
+        } else if (key == Options.getInstance().getOption(OptionsEnum.key_left_1)) {
             dx = -1;
             dy = 0;
             if (starLevel > 1) {
                 dx = -2;
             }
-            ImageIcon ii = new ImageIcon("image/playerTank_left.png");
-            image = ii.getImage();
+            y = (int)(Math.round(((double)y / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize()); 
+//            ImageIcon ii = new ImageIcon("./Battle-City/image/playerTank_left.png");
+//            image = ii.getImage();
+            updateImage(Images.playerTank_left);
             direction = 3;
-        } else if (key == KeyEvent.VK_RIGHT) {
+        }  else if (key == Options.getInstance().getOption(OptionsEnum.key_right_1)) { // else if (key == KeyEvent.VK_RIGHT) {
             dx = 1;
             dy = 0;
             if (starLevel > 1) {
                 dx = 2;
             }
-            ImageIcon ii = new ImageIcon("image/playerTank_right.png");
-            image = ii.getImage();
+            y = (int)(Math.round(((double)y / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
+//            ImageIcon ii = new ImageIcon("./Battle-City/image/playerTank_right.png");
+//            image = ii.getImage();
+            updateImage(Images.playerTank_right);
             direction = 1;
-        } else if (key == KeyEvent.VK_UP) {
-            ImageIcon ii = new ImageIcon("image/playerTank_up.png");
-            image = ii.getImage();
+        } else if  (key == Options.getInstance().getOption(OptionsEnum.key_up_1)) { // (key == KeyEvent.VK_UP) {
+//            ImageIcon ii = new ImageIcon("./Battle-City/image/playerTank_up.png");
+//            image = ii.getImage();
+        	updateImage(Images.playerTank_up);
             dy = -1;
             dx = 0;
             if (starLevel > 1) {
                 dy = -2;
             }
+            x = (int)(Math.round(((double)x / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
             direction = 0;
-        } else if (key == KeyEvent.VK_DOWN) {
-            ImageIcon ii = new ImageIcon("image/playerTank_down.png");
-            image = ii.getImage();
+        } else if  (key == Options.getInstance().getOption(OptionsEnum.key_down_1)) { //(key == KeyEvent.VK_DOWN) {
+//            ImageIcon ii = new ImageIcon("./Battle-City/image/playerTank_down.png");
+//            image = ii.getImage();
+        	updateImage(Images.playerTank_down);
             dy = 1;
             dx = 0;
             if (starLevel > 1) {
                 dy = 2;
             }
+            x = (int)(Math.round(((double)x / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
             direction = 2;
         }
     }
@@ -197,19 +221,19 @@ public class Tank extends Sprite {
 
         int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_LEFT) {
+        if (key == Options.getInstance().getOption(OptionsEnum.key_left_1)) {
             dx = 0;
         }
 
-        if (key == KeyEvent.VK_RIGHT) {
+        if (key == Options.getInstance().getOption(OptionsEnum.key_right_1)) {
             dx = 0;
         }
 
-        if (key == KeyEvent.VK_UP) {
+        if (key == Options.getInstance().getOption(OptionsEnum.key_up_1)) {
             dy = 0;
         }
 
-        if (key == KeyEvent.VK_DOWN) {
+        if (key == Options.getInstance().getOption(OptionsEnum.key_down_1)) {
             dy = 0;
         }
     }
@@ -221,4 +245,10 @@ public class Tank extends Sprite {
     public int getStarLevel() {
         return starLevel;
     }
+
+	public void setBullets(ArrayList<Bullet> bullets) {
+		this.bullets = bullets;
+	}
+    
+    
 }

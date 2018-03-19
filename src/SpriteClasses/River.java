@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * River is a block which represents the river blocks
  *
@@ -33,13 +35,14 @@ public class River extends Block {
         if ((System.currentTimeMillis() - lastImage) > 500) {
 
             if (lastLoad) {
-                loadImage("image/water_1.png");
+  //              loadImage("./Battle-City/image/water_1.png");
+            	updateImage(Images.river);
                 lastImage = System.currentTimeMillis();
                 lastLoad = false;
             } else {
-                loadImage("image/water_2.png");
-                lastImage = System.currentTimeMillis();
-
+//                loadImage("./Battle-City/image/water_2.png");
+            	updateImage(Images.river2);                
+            	lastImage = System.currentTimeMillis();
                 lastLoad = true;
             }
         }
@@ -47,9 +50,9 @@ public class River extends Block {
     }
 
     public River(int x, int y) {
-        super(x, y);
-        loadImage("image/water_1.png");
-        getImageDimensions();
+        super(x, y, Images.river);
+//        loadImage("./Battle-City/image/water_1.png");
+//        getImageDimensions();
         setHealth(1);
         setType(4);
     }

@@ -15,6 +15,8 @@
  */
 package SpriteClasses;
 
+import SpriteClasses.ImageUtils.Images;
+
 /**
  * Class that handles the exploding animations of the tanks Exploding tank is
  * extended from Explosion which is extended from Animation This class is
@@ -36,28 +38,32 @@ public class ExplodingTank extends Explosion {
      * @param y coordinate of the tank
      */
     public ExplodingTank(int x, int y) {
-        super(x - 8, y - 8);
-        loadImage("image/big_explosion_1.png");
-        getImageDimensions();
+        super(x - 8, y - 8, Images.big_explosion);
+//        loadImage("./Battle-City/image/big_explosion_1.png");
+//        getImageDimensions();
     }
 
     @Override
     public void updateAnimation() {
         if ((System.currentTimeMillis() - initialTime) > 125) {
-            loadImage("image/big_explosion_2.png");
-            getImageDimensions();
+//            loadImage("./Battle-City/image/big_explosion_2.png");
+//            getImageDimensions();
+        	updateImage(Images.big_explosion2);
         }
         if ((System.currentTimeMillis() - initialTime > 500)) {
-            loadImage("image/big_explosion_3.png");
-            getImageDimensions();
+//            loadImage("./Battle-City/image/big_explosion_3.png");
+//            getImageDimensions();
+        	updateImage(Images.big_explosion3);
         }
         if ((System.currentTimeMillis() - initialTime > 700)) {
-            loadImage("image/big_explosion_4.png");
-            getImageDimensions();
+//            loadImage("./Battle-City/image/big_explosion_4.png");
+//            getImageDimensions();
+        	updateImage(Images.big_explosion4);
         }
         if ((System.currentTimeMillis() - initialTime > 900)) {
-            loadImage("image/big_explosion_5.png");
-            getImageDimensions();
+//            loadImage("./Battle-City/image/big_explosion_5.png");
+//            getImageDimensions();
+        	updateImage(Images.big_explosion5);
         }
         if ((System.currentTimeMillis() - initialTime > 1100)) {
             super.vis = false;

@@ -15,13 +15,13 @@
  */
 package SpriteClasses;
 
+import GameMain.AiTankType;
 import GameMain.CollisionUtility;
-import GameMain.Map;
-import java.awt.Image;
+import SpriteClasses.ImageUtils.Images;
+
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.swing.ImageIcon;
 
 /**
  * TankAI extends Sprite. TankAI represents the enemy in the game. TankAI has an
@@ -37,15 +37,18 @@ import javax.swing.ImageIcon;
  * @author Hung Giang
  */
 public class TankAI extends Sprite {
-    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
-    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
+	
+	
+//    private final int BOARD_WIDTH = Map.BOARD_WIDTH;
+//    private final int BOARD_HEIGHT = Map.BOARD_HEIGHT;
+	private AiTankType type;
     private ArrayList<Bullet> bullets;
     private boolean powerUp;
     private int dx, dy;
-    public int direction;
+    public int direction = 2;
     private int health;
     private String difficulty;
-    private String type;
+//    private String type;
     private int dirTimer = 0;
     private int dirUpdateInterval;
     private int fireTimer = 0;
@@ -53,21 +56,34 @@ public class TankAI extends Sprite {
     private double speedConst;
     public boolean frozen = false;
     public long frozenStartTime;
-    private String imageUp;
-    private String imageDown;
-    private String imageLeft;
-    private String imageRight;
+//    private String imageUp;
+//    private String imageDown;
+//    private String imageLeft;
+//    private String imageRight;
 
-    public TankAI(int x, int y, String difficulty, String type, boolean powerUp) {
-        super(x, y);
+    public TankAI(int x, int y, String difficulty, AiTankType type, boolean powerUp) {
+    	super(x,y,null);
+        this.vis = true;
+        this.width = 32;
+        this.height = 32;
+    	switch (type) {
+		case armor: this.imageType = Images.aiTank_armor_down;
+			break;
+		case base: this.imageType = Images.aiTank_basic_down;
+			break;
+		case fast: this.imageType = Images.aiTank_fast_down;
+			break;
+		case power: this.imageType = Images.aiTank_power_down;
+			break;
+    	}
         bullets = new ArrayList<>();
-        direction = 0;
         this.vis = true;
         this.powerUp = powerUp;
         this.difficulty = difficulty;
         this.type = type;
         this.setUp();
-        this.imageSetUp();
+        this.dirUpdate();
+//        this.imageSetUp();
     }
 
     /**
@@ -77,20 +93,8 @@ public class TankAI extends Sprite {
      * @author Hung Giang
      */
     private void setUp() {
-        if ("basic".equals(this.type)) {
-            this.health = 1;
-            this.speedConst = 1;
-            if (difficulty.equals("easy")) {
-                dirUpdateInterval = 30;
-                fireUpdateInterval = 80;
-            } else if (difficulty.equals("normal")) {
-                dirUpdateInterval = 30;
-                fireUpdateInterval = 75;
-            } else if (difficulty.equals("hard")) {
-                dirUpdateInterval = 30;
-                fireUpdateInterval = 70;
-            }
-        } else if ("armor".equals(this.type)) {
+    	switch (this.type) {
+		case armor:
             this.health = 4;
             this.speedConst = 1;
             if (difficulty.equals("easy")) {
@@ -103,20 +107,22 @@ public class TankAI extends Sprite {
                 dirUpdateInterval = 30;
                 fireUpdateInterval = 70;
             }
-        } else if ("power".equals(this.type)) {
+			break;
+		case base:
             this.health = 1;
             this.speedConst = 1;
             if (difficulty.equals("easy")) {
                 dirUpdateInterval = 30;
-                fireUpdateInterval = 40;
+                fireUpdateInterval = 80;
             } else if (difficulty.equals("normal")) {
                 dirUpdateInterval = 30;
-                fireUpdateInterval = 35;
+                fireUpdateInterval = 75;
             } else if (difficulty.equals("hard")) {
                 dirUpdateInterval = 30;
-                fireUpdateInterval = 30;
+                fireUpdateInterval = 70;
             }
-        } else if ("fast".equals(this.type)) {
+			break;
+		case fast:
             this.health = 1;
             this.speedConst = 2;
             if (difficulty.equals("easy")) {
@@ -129,7 +135,22 @@ public class TankAI extends Sprite {
                 dirUpdateInterval = 30;
                 fireUpdateInterval = 70;
             }
-        }
+			break;
+		case power:
+            this.health = 1;
+            this.speedConst = 1;
+            if (difficulty.equals("easy")) {
+                dirUpdateInterval = 30;
+                fireUpdateInterval = 40;
+            } else if (difficulty.equals("normal")) {
+                dirUpdateInterval = 30;
+                fireUpdateInterval = 35;
+            } else if (difficulty.equals("hard")) {
+                dirUpdateInterval = 30;
+                fireUpdateInterval = 30;
+            }
+			break;
+    	}
     }
 
     /**
@@ -138,52 +159,52 @@ public class TankAI extends Sprite {
      *
      * @author Hung Giang
      */
-    private void imageSetUp() {
-        if ("basic".equals(this.type)) {
-            loadImage("image/tank_basic_up.png");
-            getImageDimensions();
-            this.imageUp = "image/tank_basic_up.png";
-            this.imageDown = "image/tank_basic_down.png";
-            this.imageLeft = "image/tank_basic_left.png";
-            this.imageRight = "image/tank_basic_right.png";
-        } else if ("armor".equals(this.type)) {
-            loadImage("image/tank_armor_up.png");
-            getImageDimensions();
-            this.imageUp = "image/tank_armor_up.png";
-            this.imageDown = "image/tank_armor_down.png";
-            this.imageLeft = "image/tank_armor_left.png";
-            this.imageRight = "image/tank_armor_right.png";
-        } else if ("power".equals(this.type)) {
-            loadImage("image/tank_power_up.png");
-            getImageDimensions();
-            this.imageUp = "image/tank_power_up.png";
-            this.imageDown = "image/tank_power_down.png";
-            this.imageLeft = "image/tank_power_left.png";
-            this.imageRight = "image/tank_power_right.png";
-        } else if ("fast".equals(this.type)) {
-            loadImage("image/tank_fast_up.png");
-            getImageDimensions();
-            this.imageUp = "image/tank_fast_up.png";
-            this.imageDown = "image/tank_fast_down.png";
-            this.imageLeft = "image/tank_fast_left.png";
-            this.imageRight = "image/tank_fast_right.png";
-        }
-    }
+//    private void imageSetUp() {
+//        if ("basic".equals(this.type)) {
+//            loadImage("./Battle-City/image/tank_basic_up.png");
+//            getImageDimensions();
+//            this.imageUp = "./Battle-City/image/tank_basic_up.png";
+//            this.imageDown = "./Battle-City/image/tank_basic_down.png";
+//            this.imageLeft = "./Battle-City/image/tank_basic_left.png";
+//            this.imageRight = "./Battle-City/image/tank_basic_right.png";
+//        } else if ("armor".equals(this.type)) {
+//            loadImage("./Battle-City/image/tank_armor_up.png");
+//            getImageDimensions();
+//            this.imageUp = "./Battle-City/image/tank_armor_up.png";
+//            this.imageDown = "./Battle-City/image/tank_armor_down.png";
+//            this.imageLeft = "./Battle-City/image/tank_armor_left.png";
+//            this.imageRight = "./Battle-City/image/tank_armor_right.png";
+//        } else if ("power".equals(this.type)) {
+//            loadImage("./Battle-City/image/tank_power_up.png");
+//            getImageDimensions();
+//            this.imageUp = "./Battle-City/image/tank_power_up.png";
+//            this.imageDown = "./Battle-City/image/tank_power_down.png";
+//            this.imageLeft = "./Battle-City/image/tank_power_left.png";
+//            this.imageRight = "./Battle-City/image/tank_power_right.png";
+//        } else if ("fast".equals(this.type)) {
+//            loadImage("./Battle-City/image/tank_fast_up.png");
+//            getImageDimensions();
+//            this.imageUp = "./Battle-City/image/tank_fast_up.png";
+//            this.imageDown = "./Battle-City/image/tank_fast_down.png";
+//            this.imageLeft = "./Battle-City/image/tank_fast_left.png";
+//            this.imageRight = "./Battle-City/image/tank_fast_right.png";
+//        }
+//    }
 
-    @Override
-    public int getX() {
-        return x;
-    }
+//    @Override
+//    public int getX() {
+//        return x;
+//    }
+//
+//    @Override
+//    public int getY() {
+//        return y;
+//    }
 
-    @Override
-    public int getY() {
-        return y;
-    }
-
-    @Override
-    public Image getImage() {
-        return image;
-    }
+//    @Override
+//    public Image getImage() {
+//        return image;
+//    }
 
     public String getDifficulty() {
         return difficulty;
@@ -314,12 +335,12 @@ public class TankAI extends Sprite {
             y += dy;
         }
 
-        if (x > BOARD_WIDTH - width) {
-            x = BOARD_WIDTH - width;
+        if (x > ImageUtils.getDefaultBlockSize() * 33 - width) {
+            x = ImageUtils.getDefaultBlockSize() * 33 - width;
         }
 
-        if (y > BOARD_HEIGHT - height) {
-            y = BOARD_HEIGHT - height;
+        if (y > ImageUtils.getDefaultBlockSize() * 28 - height) {
+            y = ImageUtils.getDefaultBlockSize() * 28 - height;
         }
         if (x < 1) {
             x = 1;
@@ -339,16 +360,16 @@ public class TankAI extends Sprite {
         Bullet aBullet;
         switch (direction) {
             case 0:
-                aBullet = new Bullet(x + width / 3, y, 0, true);
+                aBullet = new Bullet(x + width / 3, y, 0, true, false);
                 break;
             case 1:
-                aBullet = new Bullet(x + width, y + height / 3, 1, true);
+                aBullet = new Bullet(x + width, y + height / 3, 1, true, false);
                 break;
             case 2:
-                aBullet = new Bullet(x + width / 3, y + height, 2, true);
+                aBullet = new Bullet(x + width / 3, y + height, 2, true, false);
                 break;
             default:
-                aBullet = new Bullet(x, y + height / 3, 3, true);
+                aBullet = new Bullet(x, y + height / 3, 3, true, false);
                 break;
         }
         if (frozen) {
@@ -411,6 +432,59 @@ public class TankAI extends Sprite {
         dirUpdate();
     }
 
+    private void upateImageOnType() {
+        switch (this.direction) {
+        	case 0:
+        		switch (this.type) {
+        			case base : updateImage(Images.aiTank_basic_up);
+        				break;
+        			case power : updateImage(Images.aiTank_power_up);
+    					break;
+        			case fast : updateImage(Images.aiTank_fast_up);
+    					break;
+        			case armor : updateImage(Images.aiTank_armor_up);
+        				break;
+        		}
+        		break;
+        	case 1:
+        		switch (this.type) {
+        			case base : updateImage(Images.aiTank_basic_right);
+    					break;
+        			case power : updateImage(Images.aiTank_power_right);
+						break;
+        			case fast : updateImage(Images.aiTank_fast_right);
+						break;
+        			case armor : updateImage(Images.aiTank_armor_right);
+    					break;
+        		}
+        		break;
+        	case 2:
+        		switch (this.type) {
+    				case base : updateImage(Images.aiTank_basic_down);
+						break;
+    				case power : updateImage(Images.aiTank_power_down);
+						break;
+    				case fast : updateImage(Images.aiTank_fast_down);
+						break;
+    				case armor : updateImage(Images.aiTank_armor_down);
+    					break;
+        		}
+        		break;
+        case 3:
+    			switch (this.type) {
+					case base : updateImage(Images.aiTank_basic_left);
+						break;
+					case power : updateImage(Images.aiTank_power_left);
+						break;
+					case fast : updateImage(Images.aiTank_fast_left);
+						break;
+					case armor : updateImage(Images.aiTank_armor_left);
+						break;
+    			}
+    			break;
+        }
+    }
+    
     /**
      * dirUpdate() handles updating image and acceleration of the AI according
      * to direction
@@ -418,35 +492,43 @@ public class TankAI extends Sprite {
      * @author Hung Giang
      */
     private void dirUpdate() {
-        ImageIcon ii;
+//        ImageIcon ii;
         if (frozen) {
             this.dx = 0;
             this.dy = 0;
         } else {
             switch (this.direction) {
                 case 0:
-                    ii = new ImageIcon(this.imageUp);
-                    image = ii.getImage();
-                    this.dx = (int) (0 * this.speedConst);
+//                    ii = new ImageIcon(this.imageUp);
+//                    image = ii.getImage();
+                    upateImageOnType();
+                    this.dx = 0;
                     this.dy = (int) (-1 * this.speedConst);
+                    x = (int)(Math.round(((double)x / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
                     break;
                 case 1:
-                    ii = new ImageIcon(this.imageRight);
-                    image = ii.getImage();
+//                    ii = new ImageIcon(this.imageRight);
+//                    image = ii.getImage();
+                	upateImageOnType();
                     this.dx = (int) (1 * this.speedConst);
-                    this.dy = (int) (0 * this.speedConst);
+                    this.dy = 0;
+                    y = (int)(Math.round(((double)y / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
                     break;
                 case 2:
-                    ii = new ImageIcon(this.imageDown);
-                    image = ii.getImage();
-                    this.dx = (int) (0 * this.speedConst);
+//                    ii = new ImageIcon(this.imageDown);
+//                    image = ii.getImage();
+                	upateImageOnType();
+                    this.dx = 0;
                     this.dy = (int) (1 * this.speedConst);
+                    x = (int)(Math.round(((double)x / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
                     break;
                 case 3:
-                    ii = new ImageIcon(this.imageLeft);
-                    image = ii.getImage();
+//                    ii = new ImageIcon(this.imageLeft);
+//                    image = ii.getImage();
+                	upateImageOnType();
                     this.dx = (int) (-1 * this.speedConst);
-                    this.dy = (int) (0 * this.speedConst);
+                    this.dy = 0;
+                    y = (int)(Math.round(((double)y / ImageUtils.getDefaultBlockSize())) * ImageUtils.getDefaultBlockSize());
                     break;
             }
         }
@@ -457,7 +539,7 @@ public class TankAI extends Sprite {
      *
      * @return type
      */
-    public String getType() {
+    public AiTankType getType() {
         return type;
     }
 }

@@ -15,6 +15,7 @@
  */
 package SpriteClasses.PowerUps;
 
+import SpriteClasses.ImageUtils.Images;
 import SpriteClasses.Sprite;
 
 /**
@@ -29,10 +30,10 @@ public class PowerUp extends Sprite {
     long loadTime;
     private int type;
     boolean flip = false;
-    String s;
+//    String s;
 
-    public PowerUp(int x, int y) {
-        super(x, y);
+    public PowerUp(int x, int y, Images imageType) {
+        super(x, y, imageType);
         loadTime = System.currentTimeMillis();
     }
 
@@ -53,12 +54,14 @@ public class PowerUp extends Sprite {
         if (timeDifference > 5000) {
 
             if (timeDifference % 10 == 0 && flip == false) {
-                loadImage("");
-                getImageDimensions();
+//                loadImage("");
+//                getImageDimensions();
+            	vis = false;
                 flip = true;
             } else if (timeDifference % 10 == 0 && flip == true) {
-                loadImage(s);
-                getImageDimensions();
+//                loadImage(s);
+//                getImageDimensions();
+                vis = true;
                 flip = false;
             }
         }

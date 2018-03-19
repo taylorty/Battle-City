@@ -21,6 +21,7 @@ import SpriteClasses.Block;
 import SpriteClasses.Bullet;
 import SpriteClasses.ExplodingTank;
 import SpriteClasses.Explosion;
+import SpriteClasses.ImageUtils;
 import SpriteClasses.Tank;
 import SpriteClasses.TankAI;
 import SpriteClasses.TankShield;
@@ -40,6 +41,7 @@ public class CollisionUtility {
     private static ArrayList<Animation> explosions;
     // Instance variable that tracks the number of enemy tanks being destroyed
     private static int[] enemyTankNum = {0, 0, 0, 0};
+    private static int[] enemyTankNum2 = {0, 0, 0, 0};
 
     /**
      * Load blocks and explosion animation from the input array list
@@ -58,6 +60,7 @@ public class CollisionUtility {
      */
     public static void resetScore() {
         enemyTankNum = new int[]{0, 0, 0, 0};
+        enemyTankNum2 = new int[]{0, 0, 0, 0};
     }
 
     /**
@@ -92,7 +95,7 @@ public class CollisionUtility {
         if (block.getHealth() == 0) {
             SoundUtility.explosion2();
             block.vis = false;
-            explosions.add(new Explosion(block.x, block.y));
+            explosions.add(new Explosion(block.x, block.y, null));
 
         }
         if (block.getHealth() == 0) {
@@ -130,6 +133,7 @@ public class CollisionUtility {
                                                    ArrayList<Block> blocks) {
 
         for (int x = 0; x < bullets.size(); x++) {
+        	if (!bullets.get(x).isVisible()) continue;
             Bullet b = bullets.get(x);
             Rectangle r1 = b.getBounds();
 
@@ -144,6 +148,20 @@ public class CollisionUtility {
             }
         }
     }
+    
+    public static void checkCollisionBulletsBullets(ArrayList<Bullet> bullets) {
+    	bullets.stream().filter(b -> {return b.isVisible();}).forEach(b -> {
+    		Rectangle r1 = b.getBounds();
+    		bullets.stream().filter(b_ -> {return b_ != b && b_.isVisible();}).forEach(b_ -> {
+    			Rectangle r2 = b_.getBounds();
+                if (r1.intersects(r2)) {
+                    SoundUtility.BulletHitBrick();
+                    b.setVisible(false);
+                    b_.setVisible(false);
+                }
+    		});
+    	});
+    }
 
     /**
      * Check collision between bullets and the player tank
@@ -153,8 +171,10 @@ public class CollisionUtility {
      */
     public static void checkCollisionBulletsTank(ArrayList<Bullet> bullets,
                                                  Tank tank) {
+    	if (!tank.isVisible()) return;
         Rectangle r2 = tank.getBounds();
         for (int x = 0; x < bullets.size(); x++) {
+        	if (!bullets.get(x).isVisible()) continue;
             Bullet b = bullets.get(x);
             Rectangle r1 = b.getBounds();
             if (r1.intersects(r2) && b.isEnemy == true) {
@@ -170,6 +190,28 @@ public class CollisionUtility {
             }
         }
     }
+    
+    public static void checkCollisionBulletsTank2(ArrayList<Bullet> bullets,
+    		Tank tank) {
+    	if (!tank.isVisible()) return;
+    	Rectangle r2 = tank.getBounds();
+    	for (int x = 0; x < bullets.size(); x++) {
+    		if (!bullets.get(x).isVisible()) continue;
+    		Bullet b = bullets.get(x);
+    		Rectangle r1 = b.getBounds();
+    		if (r1.intersects(r2) && b.isEnemy == true) {
+    			b.vis = false;
+    			if (tank.shield == false) {
+    				SoundUtility.explosion1();
+    				explosions.add(new ExplodingTank(tank.x, tank.y));
+    				tank.downHealth();
+    				resetTankPosition2(tank, 1);
+    			} else {
+    				SoundUtility.BulletHitTank();
+    			}
+    		}
+    	}
+    }
 
     /**
      * Check collision between bullets and enemy tanks
@@ -184,6 +226,7 @@ public class CollisionUtility {
             Rectangle r1 = b.getBounds();
 
             for (int i = 0; i < TankAIs.size(); i++) {
+            	if (!bullets.get(x).isVisible()) continue;
                 TankAI tankAI = TankAIs.get(i);
                 Rectangle r2 = tankAI.getBounds();
 
@@ -192,7 +235,8 @@ public class CollisionUtility {
                     b.vis = false;
                     SoundUtility.BulletHitTank();
                     if (tankAI.getHealth() < 1) {
-                        incrementNum(tankAI);
+                        if (b.isFirst()) incrementNum(tankAI);
+                        else incrementNum2(tankAI);
                         if (tankAI.hasPowerUp()) {
                             powerUpX = tankAI.getX();
                             powerUpY = tankAI.getY();
@@ -213,19 +257,39 @@ public class CollisionUtility {
      * @param tankAI a given tankAI
      */
     public static void incrementNum(TankAI tankAI) {
-        String type = tankAI.getType();
+        AiTankType type = tankAI.getType();
         switch (type) {
-            case "basic":
+            case base:
                 enemyTankNum[0] += 1;
                 break;
-            case "fast":
+            case fast:
                 enemyTankNum[1] += 1;
                 break;
-            case "power":
+            case power:
                 enemyTankNum[2] += 1;
                 break;
-            case "armor":
+            case armor:
                 enemyTankNum[3] += 1;
+                break;
+            default:
+                break;
+        }
+    }
+    
+    public static void incrementNum2(TankAI tankAI) {
+        AiTankType type = tankAI.getType();
+        switch (type) {
+            case base:
+                enemyTankNum2[0] += 1;
+                break;
+            case fast:
+                enemyTankNum2[1] += 1;
+                break;
+            case power:
+                enemyTankNum2[2] += 1;
+                break;
+            case armor:
+                enemyTankNum2[3] += 1;
                 break;
             default:
                 break;
@@ -242,6 +306,11 @@ public class CollisionUtility {
         return enemyTankNum;
     }
 
+    public static int[] getEnemyTankNum2() {
+        return enemyTankNum2;
+    }
+
+    
     /**
      * Reset the position of the tank
      *
@@ -249,10 +318,23 @@ public class CollisionUtility {
      * @param type
      */
     public static void resetTankPosition(Tank atank, int type) {
-        atank.x = 10 * 16;
-        atank.y = (Map.level0.length - 3) * 16;
-        atank.shield = true;
-        explosions.add(new TankShield(atank, 2));
+        atank.x = 10 * ImageUtils.getDefaultBlockSize();
+        atank.y = (Map.level0.length - 3) * ImageUtils.getDefaultBlockSize();
+        if (atank.getHealth() >= 0) atank.shield = true;
+        if (atank.shield) explosions.add(new TankShield(atank, 2));
+        if (type == 1) {
+            atank.starLevel = 0;
+        } else {
+            atank.shield = false;
+        }
+
+    }
+    
+    public static void resetTankPosition2(Tank atank, int type) {
+        atank.x = 18 * ImageUtils.getDefaultBlockSize();
+        atank.y = (Map.level0.length - 3) * ImageUtils.getDefaultBlockSize();
+        if (atank.getHealth() >= 0) atank.shield = true;
+        if (atank.shield) explosions.add(new TankShield(atank, 2));
         if (type == 1) {
             atank.starLevel = 0;
         } else {
@@ -287,6 +369,29 @@ public class CollisionUtility {
 
             }
         }
+    }
+    
+    
+    public static void checkCollisionTankTankAI2(ArrayList<TankAI> TankAIs,
+    		Tank atank) {
+    	Rectangle r1 = atank.getBounds();
+    	for (int i = 0; i < TankAIs.size(); i++) {
+    		TankAI tankAI = TankAIs.get(i);
+    		Rectangle r2 = tankAI.getBounds();
+    		if (r1.intersects(r2)) {
+    			if (atank.shield == false) {
+    				explosions.add(new ExplodingTank(atank.x, atank.y));
+    				atank.downHealth();
+    				resetTankPosition2(atank, 1);
+    			} else if (atank.shield == true) {
+    				incrementNum2(tankAI);
+    				Board.decrementEnemies(1);
+    				tankAI.vis = false;
+    				explosions.add(new ExplodingTank(atank.x, atank.y));
+    			}
+
+    		}
+    	}
     }
 
 }
